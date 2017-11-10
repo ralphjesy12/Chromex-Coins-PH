@@ -1,0 +1,15 @@
+{
+    "manifest_version": 2,
+    "name": "Coins PH Ticker",
+    "version": "0.1",
+    "background": {
+        "scripts": [
+            "background.js"
+        ]
+    },
+    "browser_action": {
+        "default_name": "Coins PH Ticker",
+        "default_icon": "images/coins.png",
+        "default_popup": "popup.html"
+    }
+}
