@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Coins PH Ticker",
-    "version": "0.1",
+    "version": "0.2",
     "background": {
         "scripts": [
             "background.js"
@@ -9,7 +9,14 @@
     },
     "browser_action": {
         "default_name": "Coins PH Ticker",
-        "default_icon": "images/coins.png",
+        "default_title": "Coins PH Ticker",
+        "default_icon": "images/coins-48.png",
         "default_popup": "popup.html"
+    },
+    "icons": {
+        "16": "images/coins-16.png",
+        "48": "images/coins-48.png",
+        "128": "images/coins-128.png",
+        "256": "images/coins-256.png"
     }
 }
