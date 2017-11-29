@@ -3,6 +3,7 @@ var lowest = Number.MAX_SAFE_INTEGER;
 var highest = 0;
 var lastday = (new Date()).getDate();
 var id = 0;
+var refreshinterval = null;
 document.addEventListener('DOMContentLoaded', function () {
     refreshPrice();
 });
@@ -14,6 +15,7 @@ function refreshPrice(){
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
             try {
+                clearInterval(refreshinterval);
                 var resp = JSON.parse(xhr.responseText);
 
                 price = resp.markets[4].ask;
@@ -58,7 +60,6 @@ function refreshPrice(){
                 if(price < lowest){
                     lowest = price;
 
-                    console.log("Lowest Today : " + "\n" + "Buy:" + price + "\n" + "Sell: " + priceSell);
                     id++;
                     chrome.notifications.create(
                         'id' + id ,{
@@ -74,7 +75,6 @@ function refreshPrice(){
                 if(price > highest){
                     highest = price;
 
-                    console.log("Highest Today : " + "\n" + "Buy:" + price + "\n" + "Sell: " + priceSell);
                     id++;
                     chrome.notifications.create(
                         'id' + id ,{
@@ -93,9 +93,14 @@ function refreshPrice(){
             } catch(e) {
                 console.warn(e);
                 chrome.browserAction.setBadgeText({text: '$$$' });
+
+                refreshinterval = setInterval(function(){
+                    refreshPrice();
+                },5000);
             }
         }
     }
+
     xhr.send();
 
 }
