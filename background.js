@@ -18,8 +18,17 @@ function refreshPrice(){
                 clearInterval(refreshinterval);
                 var resp = JSON.parse(xhr.responseText);
 
-                price = resp.markets[4].ask;
-                priceSell = resp.markets[4].bid;
+                market = resp.markets.filter(function( obj ) {
+                    return obj.symbol == 'BTC-PHP';
+                });
+
+                market = market[0];
+
+                price = market.ask;
+                priceSell = market.bid;
+
+
+
                 text = (Math.round(price/1000));
                 if(last > price){
                     chrome.browserAction.setBadgeBackgroundColor({
@@ -39,7 +48,7 @@ function refreshPrice(){
 
                 last = price;
 
-                expiry = resp.markets[4].expires_in_seconds * 1000;
+                expiry = market.expires_in_seconds * 1000;
                 if(expiry <= 0 ) expiry = 1000;
 
                 chrome.browserAction.setBadgeText({text: text + 'K' });
@@ -62,7 +71,7 @@ function refreshPrice(){
 
                     id++;
                     chrome.notifications.create(
-                        'id' + id ,{
+                        'id-1',{
                             type:"basic",
                             title:"BTC Price Update",
                             message:"Lowest Today : " + "\n" + "Buy:" + price + "\n" + "Sell: " + priceSell,
@@ -77,7 +86,7 @@ function refreshPrice(){
 
                     id++;
                     chrome.notifications.create(
-                        'id' + id ,{
+                        'id-1',{
                             type:"basic",
                             title:"BTC Price Update",
                             message:"Highest Today : " + "\n" + "Buy:" + price + "\n" + "Sell: " + priceSell,

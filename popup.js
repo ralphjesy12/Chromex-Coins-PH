@@ -1,4 +1,9 @@
+var refreshinterval = null;
+
 window.addEventListener('load', function () {
+
+    checkUpdates();
+
     refreshPrice();
 
     var links = document.getElementsByTagName("a");
@@ -13,6 +18,7 @@ window.addEventListener('load', function () {
     }
 });
 
+
 function prioritizeIndexBySymbol(markets,symbol) {
     var pos = 0;
     for(var i = 0; i < markets.length; i++) {
@@ -26,6 +32,71 @@ function prioritizeIndexBySymbol(markets,symbol) {
     markets.splice(pos, 1);
 
     return markets;
+}
+
+
+function checkVersion(version){
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "https://raw.githubusercontent.com/ralphjesy12/Chromex-Coins-PH/master/manifest.json", true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            try {
+                clearInterval(refreshinterval);
+                var resp = JSON.parse(xhr.responseText);
+                if(resp && resp.version){
+
+                    updatetext = document.getElementById("update-text");
+                    
+                    if(version != resp.version){
+                        updatetext.innerHTML = 'Update Available';
+                        updatetext.setAttribute('href','https://github.com/ralphjesy12/Chromex-Coins-PH/archive/master.zip');
+                    }else{
+                        updatetext.innerHTML = 'View Chart';
+                        updatetext.setAttribute('href','https://www.coingecko.com/en/price_charts/bitcoin/php');
+                    }
+
+                    var links = document.getElementsByTagName("a");
+                    for (var i = 0; i < links.length; i++) {
+                        (function () {
+                            var ln = links[i];
+                            var location = ln.href;
+                            ln.onclick = function () {
+                                chrome.tabs.create({active: true, url: location});
+                            };
+                        })();
+                    }
+                }
+
+            } catch(e) {
+                console.warn(e);
+
+                refreshinterval = setInterval(function(){
+                    checkUpdates();
+                },5000);
+            }
+        }
+    }
+
+    xhr.send();
+}
+
+function checkUpdates(){
+    chrome.runtime.getPackageDirectoryEntry(function(root) {
+        root.getFile("manifest.json", {}, function(fileEntry) {
+            fileEntry.file(function(file) {
+                var reader = new FileReader();
+                reader.onloadend = function(e) {
+                    var manifest = JSON.parse(this.result);
+                    /*do here whatever with your JS object(s)*/
+                    if(manifest && manifest.version){
+                        checkVersion(manifest.version);
+                    }
+
+                };
+                reader.readAsText(file);
+            });
+        });
+    });
 }
 
 function refreshPrice(){
@@ -56,6 +127,7 @@ function refreshPrice(){
                         pricetext.innerHTML += '<li class="currency"><span class="symbol">' + pricehere.symbol + '</span> <span class="ask-price"><small>buy @ </small>' + pricehere.ask + '</span><span class="bid-price"><small>sell @ </small>' + pricehere.bid + '</span></li>';
                     }
                 }
+
                 setTimeout(function(){
                     refreshPrice();
                 },expiry);
